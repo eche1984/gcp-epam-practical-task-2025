@@ -12,10 +12,10 @@ The content of this repo was intended to complete the optional practical asignme
 
 ## Asignment Resolution
 
-1) To complete this first task, a S3 bucket was created as 'epam-staticwebsite-bucket'.
+1) To complete this first task, a GCS bucket was created as 'gcp-epam-staticwebsite-bucket'.
 
-2) To complete this second task, I created a HTTP Load Balancer named .
+2) To complete this second task, I created an Application Load Balancer (HTTP/HTTPS) named as 'epam-practical-task-lb'.
 
-3) To complete this second task, I created this repo (gcp-epam-practical-task-2025).
+3) To complete this third task, I created this repo (gcp-epam-practical-task-2025).
 
-4) Finally, to complete the third task, I created the deploy.yml file with a GitHub Action to upload the HTML files on every push
+4) Finally, to complete the last task, I created the deploy.yml file with a GitHub Action to upload the HTML files on every push
