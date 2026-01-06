@@ -1,0 +1,77 @@
+name: Deploy to GCS Bucket
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCS_BUCKET_NAME: epam-staticwebsite-bucket-gcp
+  GCS_BUCKET_REGION: us-central1
+
+jobs:
+  deploy:
+    name: Deploy Static Website to GCS
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCS_BUCKET_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure gcloud
+        run: |
+          gcloud config set project ${{ env.GCP_PROJECT_ID }}
+
+      - name: Check if GCS bucket is empty
+        id: check_bucket
+        run: |
+          echo "Checking contents of bucket gs://${{ env.GCS_BUCKET_NAME }}..."
+          if gsutil ls gs://${{ env.GCS_BUCKET_NAME }}/** >/dev/null 2>&1; then
+            echo "Bucket is not empty."
+            echo "empty=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Bucket is empty (or has no matching objects)."
+            echo "empty=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configure bucket for static website hosting
+        run: |
+          gsutil web set -m index.html -e error.html gs://${{ env.GCS_BUCKET_NAME }}
+
+      - name: Set bucket permissions for public access
+        run: |
+          gsutil iam ch allUsers:objectViewer gs://${{ env.GCS_BUCKET_NAME }}
+
+      - name: Upload files to GCS bucket
+        run: |
+          if [ "${{ steps.check_bucket.outputs.empty }}" = "true" ]; then
+            echo "Performing initial upload to empty bucket..."
+          else
+            echo "Bucket already has content, syncing changes..."
+          fi
+          gsutil -m rsync -d -r staticwebsite/ gs://${{ env.GCS_BUCKET_NAME }}/staticwebsite/
+
+      - name: Set cache control for HTML files
+        run: |
+          gsutil -m setmeta -h "Cache-Control:public, max-age=3600" gs://${{ env.GCS_BUCKET_NAME }}/staticwebsite/*.html
+
+      - name: Display deployment info
+        run: |
+          echo "✅ Deployment successful!"
+          echo "Bucket: gs://${{ env.GCS_BUCKET_NAME }}"
+          echo "Website URL: https://storage.googleapis.com/${{ env.GCS_BUCKET_NAME }}/staticwebsite/index.html"
