@@ -18,4 +18,6 @@ The content of this repo was intended to complete the optional practical asignme
 
 3) To complete this third task, I created this repo (gcp-epam-practical-task-2025).
 
-4) Finally, to complete the last task, I created the deploy.yml file with a GitHub Action to upload the HTML files on every push
+4) Finally, to complete the last task, I created the deploy.yml file with a GitHub Action to upload the HTML files on every push.
+
+To access to the site you can reach the following URL: http://34.128.177.200/

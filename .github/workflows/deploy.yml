@@ -74,4 +74,4 @@ jobs:
         run: |
           echo "✅ Deployment successful!"
           echo "Bucket: gs://${{ env.GCS_BUCKET_NAME }}"
-          echo "Website URL: https://storage.googleapis.com/${{ env.GCS_BUCKET_NAME }}/staticwebsite/index.html"
+          echo "Website URL: http://34.128.177.200/"
